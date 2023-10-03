@@ -187,12 +187,6 @@ Finally, these position get passed to the Tilemap Generator which will render th
 to the scene.
 
 ```c#
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.Tilemaps;
-
 public class TilemapGenerator : MonoBehaviour
 {
     [SerializeField]
