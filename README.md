@@ -1,4 +1,8 @@
-# 2DLevelGenerator
-A simple 2d dungeon generator for levels in unity
-using simple random walk algorithm for rooms and corridor first
-generation
+## Introduction
+
+This project is a tool for Unity's 2D workspace that allows users
+to create procedurally generated levels in the editor. It accepts a preset
+that will define the style of the level and then generates it and places tiles
+in the scene.
+
+## How it works
