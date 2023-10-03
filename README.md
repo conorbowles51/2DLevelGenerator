@@ -68,7 +68,7 @@ as they are just the first and last positions in every corridor. It is important
 width of 1 unit and only scaled up to the desired width after dead ends are found, as the method for doing so relies on the fact that a position has
 exactly one neighbouring position.
 
-```
+```cs
         List<List<Vector2Int>> corridors = CorridorGenerator.CreateCorridors(startPosition, corridorCount, corridorLength, corridorWidth);
         
         HashSet<Vector2Int> potentialRoomPositions = CorridorGenerator.GetPotentialRoomPositions(corridors);
@@ -83,14 +83,14 @@ exactly one neighbouring position.
 ```
 
 Once the corridors are resized, the rooms will then be generated at the potential positions for them that were found. This is done with
-an algorithm very similar to the previous one.
+an algorithm very similar to the previous one. It will use the desired walk length and number of iterations set in the preset. 
 
-```
+```cs
         HashSet<Vector2Int> roomPositions = RoomGenerator.CreateRooms(roomPercent, potentialRoomPositions, deadEndPositions, preset);
 
         groundPositions.UnionWith(roomPositions);
 ```
-```
+```cs
 public static class RoomGenerator
 {
     public static HashSet<Vector2Int> CreateRoom(SimpleRandomWalkPreset preset, Vector2Int startPosition)
@@ -143,4 +143,97 @@ public static class RoomGenerator
     }
 }
 ```
-It will use the desired walk length and number of iterations set in the preset.
+The next step is to take the ground positions generated and create positions for the walls.
+This is done by simply checking the neighbouring positions of the ground positions, and if the neighbour is
+not a ground position, then it should be a wall position.
+
+```cs
+        wallPositions = WallGenerator.GenerateWalls(groundPositions, Direction2D.EightWayDirections);
+
+        GenerateTiles();
+
+        return groundPositions;
+```
+```cs
+public static class WallGenerator
+{
+    public static HashSet<Vector2Int> GenerateWalls(HashSet<Vector2Int> groundPositions, List<Vector2Int> directions)
+    {
+        HashSet<Vector2Int> positions = new HashSet<Vector2Int>();
+
+        foreach(Vector2Int position in groundPositions)
+        {
+            foreach(Vector2Int direction in directions)
+            {
+                Vector2Int neighbourPosition = position + direction;
+                
+                if(!groundPositions.Contains(neighbourPosition))
+                {
+                    positions.Add(neighbourPosition);
+                }
+            }
+        }
+
+        return positions;
+    }
+}
+```
+
+Finally, these position get passed to the Tilemap Generator which will render the wall and ground tiles
+to the scene.
+
+```cs
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.Tilemaps;
+
+public class TilemapGenerator : MonoBehaviour
+{
+    [SerializeField]
+    private Tilemap groundTilemap;
+    [SerializeField]
+    private Tilemap wallTilemap;
+    [SerializeField]
+    private TileBase groundTile;
+    [SerializeField]
+    private TileBase wallTile;
+
+    public void PaintGroundTiles(IEnumerable<Vector2Int> tilePositions)
+    {
+        PaintTiles(tilePositions, groundTilemap, groundTile);
+    }
+
+    public void PaintWallTiles(IEnumerable<Vector2Int> wallPositions)
+    {
+        Tile empty = Tile.CreateInstance<Tile>();
+        empty.colliderType = Tile.ColliderType.Grid;
+
+        PaintTiles(wallPositions, groundTilemap, wallTile);
+        PaintTiles(wallPositions, wallTilemap, empty);
+    }
+
+    private void PaintTiles(IEnumerable<Vector2Int> tilePositions, Tilemap tilemap, TileBase tile)
+    {
+        foreach(Vector2Int position in tilePositions)
+        {
+            PaintTile(position, tilemap, tile);
+        }
+    }
+
+    private void PaintTile(Vector2Int position, Tilemap tilemap, TileBase tile)
+    {
+        Vector3Int tilePosition = tilemap.WorldToCell((Vector3Int) position);
+        tilemap.SetTile(tilePosition, tile);
+    }
+
+    public void Clear()
+    {
+        groundTilemap.ClearAllTiles();
+        wallTilemap.ClearAllTiles();
+    }
+}
+
+```
+
