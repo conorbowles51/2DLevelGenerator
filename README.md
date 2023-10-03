@@ -68,7 +68,7 @@ as they are just the first and last positions in every corridor. It is important
 width of 1 unit and only scaled up to the desired width after dead ends are found, as the method for doing so relies on the fact that a position has
 exactly one neighbouring position.
 
-```cs
+```c#
         List<List<Vector2Int>> corridors = CorridorGenerator.CreateCorridors(startPosition, corridorCount, corridorLength, corridorWidth);
         
         HashSet<Vector2Int> potentialRoomPositions = CorridorGenerator.GetPotentialRoomPositions(corridors);
@@ -85,12 +85,12 @@ exactly one neighbouring position.
 Once the corridors are resized, the rooms will then be generated at the potential positions for them that were found. This is done with
 an algorithm very similar to the previous one. It will use the desired walk length and number of iterations set in the preset. 
 
-```cs
+```c#
         HashSet<Vector2Int> roomPositions = RoomGenerator.CreateRooms(roomPercent, potentialRoomPositions, deadEndPositions, preset);
 
         groundPositions.UnionWith(roomPositions);
 ```
-```cs
+```c#
 public static class RoomGenerator
 {
     public static HashSet<Vector2Int> CreateRoom(SimpleRandomWalkPreset preset, Vector2Int startPosition)
@@ -147,14 +147,14 @@ The next step is to take the ground positions generated and create positions for
 This is done by simply checking the neighbouring positions of the ground positions, and if the neighbour is
 not a ground position, then it should be a wall position.
 
-```cs
+```c#
         wallPositions = WallGenerator.GenerateWalls(groundPositions, Direction2D.EightWayDirections);
 
         GenerateTiles();
 
         return groundPositions;
 ```
-```cs
+```c#
 public static class WallGenerator
 {
     public static HashSet<Vector2Int> GenerateWalls(HashSet<Vector2Int> groundPositions, List<Vector2Int> directions)
@@ -182,7 +182,7 @@ public static class WallGenerator
 Finally, these position get passed to the Tilemap Generator which will render the wall and ground tiles
 to the scene.
 
-```cs
+```c#
 using System;
 using System.Collections;
 using System.Collections.Generic;
