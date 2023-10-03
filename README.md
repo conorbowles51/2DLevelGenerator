@@ -13,7 +13,7 @@ You can create your own preset or use one of the three already provided.
 
 Here are some of the results with different settings and presets:
 
-![image](https://github.com/conorbowles51/2DLevelGenerator/assets/143211735/ba66cd97-5350-4531-8f85-b641cdc1c958)
-![image](https://github.com/conorbowles51/2DLevelGenerator/assets/143211735/3e6b0e2f-4cdc-4360-850d-81426bc2b288)
-![image](https://github.com/conorbowles51/2DLevelGenerator/assets/143211735/37b0e258-57df-4723-8f67-8baf58c1d74b)
+![image](https://github.com/conorbowles51/2DLevelGenerator/assets/143211735/3c08cccd-24ec-419a-be19-5930479c7645)
+![image](https://github.com/conorbowles51/2DLevelGenerator/assets/143211735/f0f02d36-0718-4c21-81dd-72bfddc4e3da)
+![image](https://github.com/conorbowles51/2DLevelGenerator/assets/143211735/7175a6cd-1e6c-44c5-8fb2-83316bde766a)
 
