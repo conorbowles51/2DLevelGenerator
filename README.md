@@ -22,7 +22,7 @@ Here are some of the results with different settings and presets:
 The main algorithm used in this project is the simple random walk algorithm. It takes a start position, moves one unit in a random direction, then repeats
 this process for the duration of the walk length.
 
-```
+```cs
 public static HashSet<Vector2Int> SimpleRandomWalk(Vector2Int startPosition, int walkLength)
     {
         HashSet<Vector2Int> path = new HashSet<Vector2Int>();
@@ -40,3 +40,107 @@ public static HashSet<Vector2Int> SimpleRandomWalk(Vector2Int startPosition, int
         return path;
     }
 ```
+
+The first step is to generate the corridors, which are the hallways that connect the rooms together.
+
+```c#
+public static List<List<Vector2Int>> CreateCorridors(Vector2Int startPosition, int corridorCount, int corridorLength, int corridorWidth)
+    {
+        List<List<Vector2Int>> corridors = new List<List<Vector2Int>>();
+
+        Vector2Int currentPosition = startPosition;
+
+        for (int i = 0; i < corridorCount; i++)
+        {
+            List<Vector2Int> corridor = ProceduralGenerationAlgorithms.RandomWalkCorridor(currentPosition, corridorLength);
+
+            corridors.Add(corridor);
+
+            currentPosition = corridor[corridor.Count - 1];
+        }
+
+        return corridors;
+    }
+```
+
+The intersections (or dead ends) of these corridors are where rooms will be placed afterwards. These are easily found 
+as they are just the first and last positions in every corridor. It is important that these corridors are firstly generated with a
+width of 1 unit and only scaled up to the desired width after dead ends are found, as the method for doing so relies on the fact that a position has
+exactly one neighbouring position.
+
+```
+        List<List<Vector2Int>> corridors = CorridorGenerator.CreateCorridors(startPosition, corridorCount, corridorLength, corridorWidth);
+        
+        HashSet<Vector2Int> potentialRoomPositions = CorridorGenerator.GetPotentialRoomPositions(corridors);
+
+        for (int i = 0; i < corridors.Count; i++)
+        {
+            groundPositions.UnionWith(corridors[i]);
+        }
+
+        HashSet<Vector2Int> deadEndPositions = FindAllDeadEnds(groundPositions);
+        corridors = CorridorGenerator.ResizeCorridors(corridors, corridorWidth); // MUST resize corridors AFTER dead ends have been found
+```
+
+Once the corridors are resized, the rooms will then be generated at the potential positions for them that were found. This is done with
+an algorithm very similar to the previous one.
+
+```
+        HashSet<Vector2Int> roomPositions = RoomGenerator.CreateRooms(roomPercent, potentialRoomPositions, deadEndPositions, preset);
+
+        groundPositions.UnionWith(roomPositions);
+```
+```
+public static class RoomGenerator
+{
+    public static HashSet<Vector2Int> CreateRoom(SimpleRandomWalkPreset preset, Vector2Int startPosition)
+    {
+        Vector2Int currentPosition = startPosition;
+        HashSet<Vector2Int> groundPositions = new HashSet<Vector2Int>();
+
+        for (int i = 0; i < preset.iterations; i++)
+        {
+            HashSet<Vector2Int> path = ProceduralGenerationAlgorithms.SimpleRandomWalk(currentPosition, preset.walkLength);
+            groundPositions.UnionWith(path); // add without duplicates
+
+            if(preset.useRandomStartPosition)
+            {
+                currentPosition = groundPositions.ElementAt(Random.Range(0, groundPositions.Count));
+            }
+        }
+
+        return groundPositions;
+    }
+
+    public static HashSet<Vector2Int> CreateRooms(float roomPercent, HashSet<Vector2Int> potentialRoomPositions, HashSet<Vector2Int> deadEndPositions, SimpleRandomWalkPreset preset)
+    {
+        HashSet<Vector2Int> roomPositions = new HashSet<Vector2Int>();
+
+        int roomsToCreateCount = (int)(roomPercent * potentialRoomPositions.Count) - deadEndPositions.Count;
+        
+        List<Vector2Int> prpList = potentialRoomPositions.ToList();
+
+        // remove dead ends if they're in this list, and add room at their pos
+        foreach(Vector2Int deadEndPos in deadEndPositions)
+        {
+            if(prpList.Contains(deadEndPos))
+            {
+                prpList.Remove(deadEndPos);
+            }
+
+            roomPositions.UnionWith(RoomGenerator.CreateRoom(preset, deadEndPos));
+        }
+
+        for(int i = 0; i < roomsToCreateCount; i++)
+        {
+            int index = Random.Range(0, prpList.Count);
+            roomPositions.UnionWith(RoomGenerator.CreateRoom(preset, prpList[index]));
+
+            prpList.RemoveAt(index);
+        }
+
+        return roomPositions;
+    }
+}
+```
+It will use the desired walk length and number of iterations set in the preset.
