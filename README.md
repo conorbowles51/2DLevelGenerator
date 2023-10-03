@@ -17,3 +17,26 @@ Here are some of the results with different settings and presets:
 ![image](https://github.com/conorbowles51/2DLevelGenerator/assets/143211735/f0f02d36-0718-4c21-81dd-72bfddc4e3da)
 ![image](https://github.com/conorbowles51/2DLevelGenerator/assets/143211735/7175a6cd-1e6c-44c5-8fb2-83316bde766a)
 
+## How it works
+
+The main algorithm used in this project is the simple random walk algorithm. It takes a start position, moves one unit in a random direction, then repeats
+this process for the duration of the walk length.
+
+```
+public static HashSet<Vector2Int> SimpleRandomWalk(Vector2Int startPosition, int walkLength)
+    {
+        HashSet<Vector2Int> path = new HashSet<Vector2Int>();
+
+        path.Add(startPosition);
+        Vector2Int previousPosition = startPosition;
+
+        for(int i = 0; i < walkLength; i++)
+        {
+            Vector2Int newPosition = previousPosition + Direction2D.GetRandomCardinalDirection();
+            path.Add(newPosition);
+            previousPosition = newPosition;
+        }
+
+        return path;
+    }
+```
