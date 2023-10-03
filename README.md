@@ -8,7 +8,7 @@ in the scene.
 ## Using the tool
 ![dungeongeneratorSS](https://github.com/conorbowles51/2DLevelGenerator/assets/143211735/517061f9-1c21-4067-8670-6fd56332a2f2)
 
-To use the tool, simply attach the script to an empty object, configure the settings how you like, and hit the generate button at the bottom.
+To use the tool, simply attach the 'Dungeon Generator' script to an empty object, configure the settings how you like, and hit the generate button at the bottom.
 You can create your own preset or use one of the three already provided.
 
 Here are some of the results with different settings and presets:
